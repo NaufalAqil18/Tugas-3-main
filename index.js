@@ -1,15 +1,33 @@
 const express = require("express");
 const readline = require("readline-sync");
 const DB = require("./db_operation");
-
+const path = require("path"); 
 const app = express();
 const port = 3000;
 const database = new DB("database.json");
 
 app.use(express.json());
 
-// ROUTES
+// Add static file middleware to serve files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
+// Add root route to serve the HTML interface
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// CORS middleware to allow cross-origin requests
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
+// ROUTES
 // Menampilkan semua item
 app.get("/items", (req, res) => {
     const items = database.lihatSemuaItem();
@@ -41,7 +59,6 @@ app.post("/items", (req, res) => {
 app.put("/items/:id", (req, res) => {
     const id = parseInt(req.params.id);
     const { nama, harga, stok } = req.body;
-
     const updatedItem = database.updateItem(id, nama, harga, stok);
     res.json({ message: updatedItem, status: "success" });
 });
@@ -55,6 +72,9 @@ app.delete("/items/:id", (req, res) => {
 
 // MENU TERMINAL INTERAKTIF
 function showMenu() {
+    console.log("\nServer web sudah berjalan, akses di http://localhost:3000");
+    console.log("Anda juga dapat menggunakan menu interaktif ini");
+    
     while (true) {
         console.log("\n=== Menu Minimarket ===");
         console.log("1. Lihat Semua Produk");
@@ -63,9 +83,9 @@ function showMenu() {
         console.log("4. Update Produk");
         console.log("5. Hapus Produk");
         console.log("6. Keluar");
-
+        
         let pilihan = readline.questionInt("\nPilih menu (1-6): ");
-
+        
         if (pilihan === 1) {
             console.log("\n=== Daftar Produk ===");
             console.table(database.lihatSemuaItem());
