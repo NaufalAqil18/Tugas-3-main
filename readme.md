@@ -6,6 +6,26 @@
 2. Muhammad Khalid Al Ghifari (2208107010044)
 3. ⁠Naufal Aqil (2208107010043)
 
+## Untuk menjalankan
+
+Pertama, clone repository dari github pada directori yang anda inginkan
+
+```bash
+git clone https://github.com/NaufalAqil18/Tugas-3-main.git
+```
+
+Kemudian, masuk kedalam repository yang telah diclone
+
+```bash
+cd Tugas-3-main
+```
+
+Cukup jalankan code berikut pada terminal, di direktori project
+
+```bash
+node index.js
+```
+
 ## Sistem Database Sederhana
 
 Buatlah sistem database sederhana dengan menggunakan node js. sistem dapat memberikan data dan menambahkan data. database yang digunakan adalah JSON.
@@ -54,3 +74,8 @@ Kalian bebas berekspresi bagaimana pun dengan sistem tersebut, bisa menambahkan 
 -   mengupdate item
 -   menghapus item
 -   fungsi lainnya yang keren
+
+## Waktu dan Tempat Pengumpulan
+
+Tenggat waktu pengerjaan tugas adalah `h-1` masuk kelas
+Tempat pengumpulan di `spreadsheet` kelompok
