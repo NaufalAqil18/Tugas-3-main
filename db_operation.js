@@ -56,11 +56,7 @@ module.exports = class DB {
 
     // Menambahkan item baru
     tambahItem(nama, harga, stok) {
-        const items = readDatabase();
-
-        // const nama = readline.question("Masukkan nama produk: ");
-        // const harga = readline.questionInt("Masukkan harga produk: ");
-        // const stok = readline.questionInt("Masukkan jumlah stok: ");
+        const items = this.readDatabase();
 
         const newItem = {
             id: items.length ? items[items.length - 1].id + 1 : 1,
@@ -70,60 +66,46 @@ module.exports = class DB {
         };
 
         items.push(newItem);
-        writeDatabase(items);
+        this.writeDatabase(items);
         console.log("Produk berhasil ditambahkan!");
         return newItem.nama + " berhasil ditambahkan!";
     }
 
     // Mengupdate item
-    updateItem(id) {
-        const items = readDatabase();
-        // const id = readline.questionInt(
-        //     "Masukkan ID produk yang ingin diperbarui: "
-        // );
+    updateItem(id, namaBaru, hargaBaru, stokBaru) {
+        const items = this.readDatabase();
         const index = items.findIndex((i) => i.id === id);
 
         if (index !== -1) {
-            const nama =
-                readline.question(`Nama baru (${items[index].nama}): `) ||
-                items[index].nama;
-            const harga =
-                readline.questionInt(`Harga baru (${items[index].harga}): `) ||
-                items[index].harga;
-            const stok =
-                readline.questionInt(`Stok baru (${items[index].stok}): `) ||
-                items[index].stok;
+            items[index] = {
+                id,
+                nama: namaBaru || items[index].nama,
+                harga: hargaBaru || items[index].harga,
+                stok: stokBaru || items[index].stok,
+            };
 
-            items[index] = { id, nama, harga, stok };
-            writeDatabase(items);
-
+            this.writeDatabase(items);
             console.log("Produk berhasil diperbarui!");
             return items[index].nama + " berhasil diperbarui!";
         } else {
             console.log("Produk tidak ditemukan.");
-
             return "Produk tidak ditemukan.";
         }
     }
 
     // Menghapus item
     hapusItem(id) {
-        const items = readDatabase();
-        // const id = readline.questionInt(
-        //     "Masukkan ID produk yang ingin dihapus: "
-        // );
+        const items = this.readDatabase();
+        const itemDihapus = items.find((i) => i.id === id);
         const newItems = items.filter((i) => i.id !== id);
-        const deleteItem = items.find((i) => i.id === id);
 
         if (newItems.length !== items.length) {
-            writeDatabase(newItems);
+            this.writeDatabase(newItems);
             console.log("Produk berhasil dihapus!");
-
-            return deleteItem + " berhasil dihapus!";
+            return itemDihapus.nama + " berhasil dihapus!";
         } else {
             console.log("Produk tidak ditemukan.");
-
-            return deleteItem + " tidak ditemukan";
+            return "Produk tidak ditemukan.";
         }
     }
 };
