@@ -1,39 +1,47 @@
 const fs = require("fs");
 const readline = require("readline-sync");
 
-// const DB_FILE = "database.json";
-
 module.exports = class DB {
     constructor(database) {
+        this.database = database;
+    }
+
+    // Membaca database JSON
+    readDatabase() {
         try {
-            const data = fs.readFileSync(database, "utf8");
+            const data = fs.readFileSync(this.database, "utf8");
             return JSON.parse(data);
         } catch (error) {
             return [];
         }
     }
 
-    // Fungsi untuk menulis ke database JSON
+    // Menulis ke database JSON
     writeDatabase(data) {
-        fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf8");
+        fs.writeFileSync(this.database, JSON.stringify(data, null, 2), "utf8");
     }
 
     // Menampilkan semua item
     lihatSemuaItem() {
-        const items = readDatabase();
-        console.log("\n=== Daftar Produk Minimarket ===");
-        items.forEach((item) => {
-            console.log(
-                `${item.id}. ${item.nama} - Rp${item.harga} (Stok: ${item.stok})`
-            );
-        });
+        // const items = readDatabase();
+        // console.log("\n=== Daftar Produk Minimarket ===");
+        // items.forEach((item) => {
+        //     console.log(
+        //         `${item.id}. ${item.nama} - Rp${item.harga} (Stok: ${item.stok})`
+        //     );
+        // });
+
+        return this.readDatabase();
     }
 
     // Menampilkan detail satu item
-    lihatSatuItem() {
-        const items = readDatabase();
-        const id = readline.questionInt("Masukkan ID produk: ");
+    lihatSatuItem(id) {
+        const items = this.readDatabase();
+        // const id = readline.questionInt("Masukkan ID produk: ");
+        // id = int(id)
         const item = items.find((i) => i.id === id);
+
+        // console.log(typeof id);
 
         if (item) {
             console.log(
@@ -47,12 +55,12 @@ module.exports = class DB {
     }
 
     // Menambahkan item baru
-    tambahItem() {
+    tambahItem(nama, harga, stok) {
         const items = readDatabase();
 
-        const nama = readline.question("Masukkan nama produk: ");
-        const harga = readline.questionInt("Masukkan harga produk: ");
-        const stok = readline.questionInt("Masukkan jumlah stok: ");
+        // const nama = readline.question("Masukkan nama produk: ");
+        // const harga = readline.questionInt("Masukkan harga produk: ");
+        // const stok = readline.questionInt("Masukkan jumlah stok: ");
 
         const newItem = {
             id: items.length ? items[items.length - 1].id + 1 : 1,
@@ -64,14 +72,15 @@ module.exports = class DB {
         items.push(newItem);
         writeDatabase(items);
         console.log("Produk berhasil ditambahkan!");
+        return newItem.nama + " berhasil ditambahkan!";
     }
 
     // Mengupdate item
-    updateItem() {
+    updateItem(id) {
         const items = readDatabase();
-        const id = readline.questionInt(
-            "Masukkan ID produk yang ingin diperbarui: "
-        );
+        // const id = readline.questionInt(
+        //     "Masukkan ID produk yang ingin diperbarui: "
+        // );
         const index = items.findIndex((i) => i.id === id);
 
         if (index !== -1) {
@@ -87,34 +96,34 @@ module.exports = class DB {
 
             items[index] = { id, nama, harga, stok };
             writeDatabase(items);
+
             console.log("Produk berhasil diperbarui!");
+            return items[index].nama + " berhasil diperbarui!";
         } else {
             console.log("Produk tidak ditemukan.");
+
+            return "Produk tidak ditemukan.";
         }
     }
 
     // Menghapus item
-    hapusItem() {
+    hapusItem(id) {
         const items = readDatabase();
-        const id = readline.questionInt(
-            "Masukkan ID produk yang ingin dihapus: "
-        );
+        // const id = readline.questionInt(
+        //     "Masukkan ID produk yang ingin dihapus: "
+        // );
         const newItems = items.filter((i) => i.id !== id);
+        const deleteItem = items.find((i) => i.id === id);
 
         if (newItems.length !== items.length) {
             writeDatabase(newItems);
             console.log("Produk berhasil dihapus!");
+
+            return deleteItem + " berhasil dihapus!";
         } else {
             console.log("Produk tidak ditemukan.");
+
+            return deleteItem + " tidak ditemukan";
         }
     }
 };
-
-// // Mengekspor fungsi agar bisa digunakan di file lain
-// module.exports = {
-//     lihatSatuItem,
-//     lihatSemuaItem,
-//     tambahItem,
-//     updateItem,
-//     hapusItem,
-// };

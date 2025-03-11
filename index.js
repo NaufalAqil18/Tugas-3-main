@@ -7,7 +7,7 @@ const routes = {
     // "/about": "Ini adalah halaman Tentang Kami.",
     // "/contact": "Hubungi kami di contact@website.com",
     "/api/data": JSON.stringify({
-        nama: database.lihatSatuItem().nama,
+        item: database.lihatSatuItem(1),
         status: "success",
     }),
 };
