@@ -1,11 +1,13 @@
 const http = require("http");
+const DB = require("./db_operation");
+const database = new DB("database.json");
 
 const routes = {
     "/": "Selamat datang di halaman utama!",
     // "/about": "Ini adalah halaman Tentang Kami.",
     // "/contact": "Hubungi kami di contact@website.com",
     "/api/data": JSON.stringify({
-        message: "Hello, ini data API!",
+        nama: database.lihatSatuItem().nama,
         status: "success",
     }),
 };
