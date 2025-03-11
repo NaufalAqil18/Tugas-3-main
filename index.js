@@ -1,24 +1,25 @@
 const express = require("express");
+const readline = require("readline-sync");
 const DB = require("./db_operation");
 
 const app = express();
+const port = 3000;
 const database = new DB("database.json");
 
-app.use(express.json()); // Middleware untuk membaca JSON dari request
+app.use(express.json());
 
-// Route: Mendapatkan semua item
+// ROUTES
+
+// Menampilkan semua item
 app.get("/items", (req, res) => {
-    res.json({
-        data: database.lihatSemuaItem(),
-        status: "success",
-    });
+    const items = database.lihatSemuaItem();
+    res.json({ data: items, status: "success" });
 });
 
-// Route: Mendapatkan satu item berdasarkan ID
+// Menampilkan detail item berdasarkan ID
 app.get("/items/:id", (req, res) => {
     const id = parseInt(req.params.id);
     const item = database.lihatSatuItem(id);
-    
     if (item) {
         res.json({ data: item, status: "success" });
     } else {
@@ -26,50 +27,77 @@ app.get("/items/:id", (req, res) => {
     }
 });
 
-// Route: Menambahkan item baru
+// Menambahkan item baru
 app.post("/items", (req, res) => {
     const { nama, harga, stok } = req.body;
-
     if (!nama || !harga || !stok) {
         return res.status(400).json({ message: "Data tidak lengkap", status: "error" });
     }
-
     const newItem = database.tambahItem(nama, harga, stok);
-    res.status(201).json({ data: newItem, status: "success" });
+    res.status(201).json({ message: newItem, status: "success" });
 });
 
-// Route: Mengupdate item berdasarkan ID
+// Mengupdate item berdasarkan ID
 app.put("/items/:id", (req, res) => {
     const id = parseInt(req.params.id);
     const { nama, harga, stok } = req.body;
 
-    if (!nama || !harga || !stok) {
-        return res.status(400).json({ message: "Data tidak lengkap", status: "error" });
-    }
-
-    const updatedItem = database.editItem(id, nama, harga, stok);
-
-    if (updatedItem) {
-        res.json({ data: updatedItem, status: "success" });
-    } else {
-        res.status(404).json({ message: "Item tidak ditemukan", status: "error" });
-    }
+    const updatedItem = database.updateItem(id, nama, harga, stok);
+    res.json({ message: updatedItem, status: "success" });
 });
 
-// Route: Menghapus item berdasarkan ID
+// Menghapus item berdasarkan ID
 app.delete("/items/:id", (req, res) => {
     const id = parseInt(req.params.id);
-    const isDeleted = database.hapusItem(id);
-
-    if (isDeleted) {
-        res.json({ message: "Item berhasil dihapus", status: "success" });
-    } else {
-        res.status(404).json({ message: "Item tidak ditemukan", status: "error" });
-    }
+    const deletedItem = database.hapusItem(id);
+    res.json({ message: deletedItem, status: "success" });
 });
 
+// MENU TERMINAL INTERAKTIF
+function showMenu() {
+    while (true) {
+        console.log("\n=== Menu Minimarket ===");
+        console.log("1. Lihat Semua Produk");
+        console.log("2. Lihat Produk Berdasarkan ID");
+        console.log("3. Tambah Produk Baru");
+        console.log("4. Update Produk");
+        console.log("5. Hapus Produk");
+        console.log("6. Keluar");
+
+        let pilihan = readline.questionInt("\nPilih menu (1-6): ");
+
+        if (pilihan === 1) {
+            console.log("\n=== Daftar Produk ===");
+            console.table(database.lihatSemuaItem());
+        } else if (pilihan === 2) {
+            let id = readline.questionInt("Masukkan ID produk: ");
+            let item = database.lihatSatuItem(id);
+            if (item) console.table(item);
+        } else if (pilihan === 3) {
+            let nama = readline.question("Masukkan nama produk: ");
+            let harga = readline.questionInt("Masukkan harga produk: ");
+            let stok = readline.questionInt("Masukkan stok produk: ");
+            console.log(database.tambahItem(nama, harga, stok));
+        } else if (pilihan === 4) {
+            let id = readline.questionInt("Masukkan ID produk yang ingin diperbarui: ");
+            let nama = readline.question("Nama baru (kosongkan jika tidak ingin mengubah): ");
+            let harga = readline.questionInt("Harga baru (0 jika tidak ingin mengubah): ");
+            let stok = readline.questionInt("Stok baru (0 jika tidak ingin mengubah): ");
+            console.log(database.updateItem(id, nama || undefined, harga || undefined, stok || undefined));
+        } else if (pilihan === 5) {
+            let id = readline.questionInt("Masukkan ID produk yang ingin dihapus: ");
+            console.log(database.hapusItem(id));
+        } else if (pilihan === 6) {
+            console.log("Terima kasih telah menggunakan aplikasi ini!");
+            process.exit();
+        } else {
+            console.log("Pilihan tidak valid, coba lagi.");
+        }
+    }
+}
+
 // Menjalankan server
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server berjalan di http://localhost:${PORT}`);
+app.listen(port, () => {
+    console.log(`Server berjalan di http://localhost:${port}`);
+    showMenu(); // Menjalankan menu interaktif di terminal
 });
