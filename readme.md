@@ -26,6 +26,8 @@ Cukup jalankan code berikut pada terminal, di direktori project
 node index.js
 ```
 
+Dapat juga melihat item dalam bentuk json dengan mengganti route-nya
+
 ## Sistem Database Sederhana
 
 Buatlah sistem database sederhana dengan menggunakan node js. sistem dapat memberikan data dan menambahkan data. database yang digunakan adalah JSON.
