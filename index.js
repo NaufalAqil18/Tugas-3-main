@@ -1,26 +1,75 @@
-const http = require("http");
+const express = require("express");
 const DB = require("./db_operation");
+
+const app = express();
 const database = new DB("database.json");
 
-const routes = {
-    "/": "Selamat datang di halaman utama!",
-    // "/about": "Ini adalah halaman Tentang Kami.",
-    // "/contact": "Hubungi kami di contact@website.com",
-    "/api/data": JSON.stringify({
-        item: database.lihatSatuItem(1),
-        status: "success",
-    }),
-};
+app.use(express.json()); // Middleware untuk membaca JSON dari request
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, {
-        "Content-Type": req.url.startsWith("/api")
-            ? "application/json"
-            : "text/plain",
+// Route: Mendapatkan semua item
+app.get("/items", (req, res) => {
+    res.json({
+        data: database.lihatSemuaItem(),
+        status: "success",
     });
-    res.end(routes[req.url] || "404 - Halaman tidak ditemukan");
 });
 
-server.listen(3000, () => {
-    console.log("Server berjalan di http://localhost:3000");
+// Route: Mendapatkan satu item berdasarkan ID
+app.get("/items/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    const item = database.lihatSatuItem(id);
+    
+    if (item) {
+        res.json({ data: item, status: "success" });
+    } else {
+        res.status(404).json({ message: "Item tidak ditemukan", status: "error" });
+    }
+});
+
+// Route: Menambahkan item baru
+app.post("/items", (req, res) => {
+    const { nama, harga, stok } = req.body;
+
+    if (!nama || !harga || !stok) {
+        return res.status(400).json({ message: "Data tidak lengkap", status: "error" });
+    }
+
+    const newItem = database.tambahItem(nama, harga, stok);
+    res.status(201).json({ data: newItem, status: "success" });
+});
+
+// Route: Mengupdate item berdasarkan ID
+app.put("/items/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    const { nama, harga, stok } = req.body;
+
+    if (!nama || !harga || !stok) {
+        return res.status(400).json({ message: "Data tidak lengkap", status: "error" });
+    }
+
+    const updatedItem = database.editItem(id, nama, harga, stok);
+
+    if (updatedItem) {
+        res.json({ data: updatedItem, status: "success" });
+    } else {
+        res.status(404).json({ message: "Item tidak ditemukan", status: "error" });
+    }
+});
+
+// Route: Menghapus item berdasarkan ID
+app.delete("/items/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    const isDeleted = database.hapusItem(id);
+
+    if (isDeleted) {
+        res.json({ message: "Item berhasil dihapus", status: "success" });
+    } else {
+        res.status(404).json({ message: "Item tidak ditemukan", status: "error" });
+    }
+});
+
+// Menjalankan server
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}`);
 });
