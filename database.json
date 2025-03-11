@@ -16,5 +16,11 @@
     "nama": "Gula Pasir 1kg",
     "harga": 15000,
     "stok": 15
+  },
+  {
+    "id": 4,
+    "nama": "Kecap Bango",
+    "harga": 17500,
+    "stok": 8
   }
 ]
